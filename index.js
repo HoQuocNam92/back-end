@@ -26,12 +26,24 @@ app.use(passport.initialize());
 app.use(helmet());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://front-end-production-108e.up.railway.app"
+];
+
 app.use(
   cors({
-    origin: "http://front-end-production-108e.up.railway.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
-  }),
+  })
 );
+
 const PORT = process.env.PORT || 3000;
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
